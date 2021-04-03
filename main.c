@@ -2,9 +2,22 @@
 #include "seamcarving.h"
 #include <stdio.h>
 
+// code to print dynamic array
+void print_dyn(double *arr, int height, int width)
+{
+    int y, x;
+    for (y = 0; y < height; y++){
+        for (x = 0; x < width; x++){
+            printf("%lf ", arr[(y * width) + x]);
+        }
+        printf("\n");
+    }
+    printf("\n");
+}
+
 void main()
 {
-    // read in 3x4.png as tbf
+    // read in 3x4.bin as tbf
     struct rgb_img **tbf = malloc(sizeof(struct rgb_img **));
     read_in_img(tbf, "3x4.bin");
 
@@ -14,4 +27,16 @@ void main()
     calc_energy(*tbf, tbf_energy);
     print_grad(*tbf_energy);
 
+    // read in 6x5.bin as sbf
+    struct rgb_img **sbf = malloc(sizeof(struct rgb_img **));
+    read_in_img(sbf, "6x5.bin");
+
+    // testing dynamic_seam
+    struct rgb_img **sbf_energy = malloc(sizeof(struct rgb_img **));
+    create_img(sbf_energy, (*sbf)->height, (*sbf)->width);
+    calc_energy(*sbf, sbf_energy);
+    double **sbf_dyn = malloc(sizeof(double **));
+    dynamic_seam(*sbf_energy, sbf_dyn);
+    printf("\n");
+    print_dyn(*sbf_dyn, (*sbf)->height, (*sbf)->width);
 }
