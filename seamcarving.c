@@ -127,3 +127,26 @@ void dynamic_seam(struct rgb_img *grad, double **best_arr)
         }
     }
 }
+
+void recover_path(double *best, int height, int width, int **path)
+{
+    int x;
+    int y = height - 1;
+    int *list = malloc(sizeof(int) * height);
+    
+    // finding lowest value in bottom of list
+    float min_x = get_cost(best, width, y, 0);
+    int pos_min = 0;
+    for (x = 1; x < width; x++){
+        if (get_cost(best, width, y, x) < min_x){
+            min_x = get_cost(best, width, y, x);
+            pos_min = x;
+        }
+    }
+
+    list[0] = pos_min;
+
+    // looking above
+    for (y = height - 2; y >= 0; )
+
+}
