@@ -39,4 +39,12 @@ void main()
     dynamic_seam(*sbf_energy, sbf_dyn);
     printf("\n");
     print_dyn(*sbf_dyn, (*sbf)->height, (*sbf)->width);
+
+    // testing recover_path
+    int **sbf_path = malloc(sizeof(int **));
+    recover_path(*sbf_dyn, (*sbf)->height, (*sbf)->width, sbf_path);
+    printf("\n");
+    for (int i = 0; i < (*sbf)->height; i++){
+        printf("%d, ", (*sbf_path)[i]);
+    }
 }

@@ -59,22 +59,19 @@ int find_energy(struct rgb_img *im, int y, int x)
    return energy;
 }
 
-double min(int8_t x, int8_t y, int8_t z)
+double min(double x, double y, double z)
 {
-    int a = (int) x;
-    int b = (int) y;
-    int c = (int) z;
-    if (a < b){
-        if (c < a){
-            return (double)(c);
+    if (x < y){
+        if (z < x){
+            return (double)(z);
         } else {
-            return (double)(a);
+            return (double)(x);
         }
     } else {
-        if (c < b){
-            return (double)(c);
+        if (z < y){
+            return (double)(z);
         } else {
-            return (double)(b);
+            return (double)(y);
         }
     }
 }
@@ -82,6 +79,28 @@ double min(int8_t x, int8_t y, int8_t z)
 double get_cost(double *arr, int width, int y, int x)
 {
     return arr[(y * width) + x];
+}
+
+int lowest_energy_above(double *arr, int width, int y, int x)
+{
+    double lowest = get_cost(arr, width, y - 1, x);
+    int i_lowest = x;
+    double left;
+    if (x != 0){
+        left = get_cost(arr, width, y - 1, x - 1);
+        if (left < lowest){
+            lowest = left;
+            i_lowest = x - 1;
+        }
+    }
+    double right;
+    if (x != (width - 1)){
+        right = get_cost(arr, width, y - 1, x + 1);
+        if (right < lowest){
+            i_lowest = x + 1;
+        }
+    }
+    return i_lowest;
 }
 
 // main functions
@@ -101,15 +120,15 @@ void calc_energy(struct rgb_img *im, struct rgb_img **grad)
 
 void dynamic_seam(struct rgb_img *grad, double **best_arr)
 {
-    *best_arr = (double *)malloc((int)(grad->height) * (int)(grad->width));
+    *best_arr = malloc(sizeof(double) * (int)(grad->height) * (int)(grad->width));
     int y, x;
     for (x = 0; x < grad->width; x++){
         int energy = get_pixel(grad, 0, x, 0);
-        (*best_arr)[x] = energy;
+        (*best_arr)[x] = (double)energy;
     }
     for (y = 1; y < grad->height; y++){
         for (x = 0; x < grad->width; x++){
-            int8_t l, m, r;
+            double l, m, r;
             m = get_cost(*best_arr, grad->width, y - 1, x);
             if (x != 0){
                 l = get_cost(*best_arr, grad->width, y - 1, x - 1);
@@ -135,7 +154,7 @@ void recover_path(double *best, int height, int width, int **path)
     int *list = malloc(sizeof(int) * height);
     
     // finding lowest value in bottom of list
-    float min_x = get_cost(best, width, y, 0);
+    double min_x = get_cost(best, width, y, 0);
     int pos_min = 0;
     for (x = 1; x < width; x++){
         if (get_cost(best, width, y, x) < min_x){
@@ -144,9 +163,12 @@ void recover_path(double *best, int height, int width, int **path)
         }
     }
 
-    list[0] = pos_min;
+    list[height - 1] = pos_min;
 
     // looking above
-    for (y = height - 2; y >= 0; )
+    for (y = height - 1; y > 0; y--){
+        list[y - 1] = lowest_energy_above(best, width, y, list[y]);
+    }
 
+    *path = list;
 }
