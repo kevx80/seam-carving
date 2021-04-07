@@ -75,4 +75,31 @@ void main()
         im = cur_im;
     }
     destroy_image(im);
+
+    // testing for halil
+
+    read_in_img(&im, "HJoceanSmall.bin");
+    
+    for(int i = 0; i < 201; i++){
+        printf("i = %d\n", i);
+        calc_energy(im,  &grad);
+        dynamic_seam(grad, &best);
+        recover_path(best, grad->height, grad->width, &path);
+        remove_seam(im, &cur_im, path);
+
+        // char filename[200];
+        // sprintf(filename, "img%d.bin", i);
+        // write_img(cur_im, filename);
+        
+        destroy_image(im);
+        destroy_image(grad);
+        free(best);
+        free(path);
+        im = cur_im;
+    }
+    char filename[200];
+    sprintf(filename, "Wimg%d.bin", 200);
+    write_img(im, filename);
+    printf("END\n");
+    destroy_image(im);
 }
